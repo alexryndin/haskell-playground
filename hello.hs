@@ -241,8 +241,6 @@ mulBits xs ys mlplr = mulBits (addBits Zero xs mlplr) (subBits Zero ys [One]) ml
 
 
 
-data Person = Person { firstName :: String, lastName :: String, age :: Int } deriving Show
-
 abbrFirstName :: Person -> Person
 abbrFirstName (p @ Person { firstName = x0:x1:xs }) = p {firstName = x0:"."}
 abbrFirstName (p @ Person { firstName = x0:[] }) = p {firstName = x0:"."}
@@ -255,3 +253,14 @@ getCenter s (Coord a b) = Coord (s/2 + fromIntegral a * s) (s/2 + fromIntegral b
 
 getCell :: Double -> Coord Double -> Coord Int
 getCell s (Coord a b) = Coord (round (a/s - 0.5)) (round (b/s - 0.5)) 
+
+data Error = ParsingError | IncompleteDataError | IncorrectDataError String
+
+data Person = Person { firstName :: String, lastName :: String, age :: Int }
+
+parsePerson :: String -> Either Error Person
+parsePerson x = case parseKV x of
+                Right (a,b,c) -> Right $ Person a b c
+                Left ParsingError -> Left ParsingError
+
+parseKV = undefined
