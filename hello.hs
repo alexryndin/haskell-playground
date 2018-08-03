@@ -1,6 +1,8 @@
 import Data.Typeable
 import Data.Char
 import Data.List
+import Data.List.Split
+import Text.Read
 
 main = putStrLn "Hello, world!"
 -- discount :: Double -> Double -> Double -> Double
@@ -254,13 +256,28 @@ getCenter s (Coord a b) = Coord (s/2 + fromIntegral a * s) (s/2 + fromIntegral b
 getCell :: Double -> Coord Double -> Coord Int
 getCell s (Coord a b) = Coord (round (a/s - 0.5)) (round (b/s - 0.5)) 
 
-data Error = ParsingError | IncompleteDataError | IncorrectDataError String
-
 data Person = Person { firstName :: String, lastName :: String, age :: Int }
 
-parsePerson :: String -> Either Error Person
-parsePerson x = case parseKV x of
-                Right (a,b,c) -> Right $ Person a b c
-                Left ParsingError -> Left ParsingError
+data Error = ParsingError | IncompleteDataError | IncorrectDataError String
 
-parseKV = undefined
+
+parsePerson :: String -> Either Error Person
+parsePerson x = case checkParseKV $ parseKV x of
+                True -> Left ParsingError 
+                False -> checkCompleteness x
+
+parseKV = map (splitOn " = ") . splitOn ("\n")
+ 
+checkCompleteness x = case (lookup "firstName" $ getPairs x, lookup "lastName" $ getPairs x, lookup "age" $ getPairs x) of
+                        (Just a, Just b, Just c) -> checkAge a b c
+                        _                        -> Left IncompleteDataError
+
+checkAge a b c = case readMaybe c :: Maybe Int of
+                   (Just c) -> Right $ Person a b c
+                   Nothing -> Left $ IncorrectDataError c
+getPairs = map (\[a,b] -> (a,b)) . parseKV
+
+checkParseKV :: [[[Char]]] -> Bool
+checkParseKV = any checkKV 
+checkKV [(a:as),(b:bs)] = False 
+checkKV _ = True 
