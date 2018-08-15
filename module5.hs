@@ -15,3 +15,14 @@ instance Functor (Entry k1 k2) where
 
 instance Functor (Map k1 k2) where
   fmap f (Map x) = Map (map (fmap f) x)
+
+data Log a = Log [String] a deriving Show
+
+toLogger :: (a -> b) -> String -> (a -> Log b)
+toLogger f msg = \x -> Log [msg] $ f x
+
+execLoggers :: a -> (a -> Log b) -> (b -> Log c) -> Log c
+execLoggers x f g = let 
+  Log [m1] b = f x
+  Log [m2] c = g b
+    in Log [m1, m2] c 
