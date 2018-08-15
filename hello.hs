@@ -1,7 +1,7 @@
 import Data.Typeable
 import Data.Char
 import Data.List
-import Data.List.Split
+--import Data.List.Split
 import Text.Read
 
 main = putStrLn "Hello, world!"
@@ -281,3 +281,5 @@ checkParseKV :: [[[Char]]] -> Bool
 checkParseKV = any checkKV 
 checkKV [(a:as),(b:bs)] = False 
 checkKV _ = True 
+
+
