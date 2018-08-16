@@ -4,7 +4,8 @@ instance Functor Tree where
   fmap g (Leaf x) = Leaf (fmap g x)
   fmap g (Branch l x r) = Branch (fmap g l) (fmap g x) (fmap g r) 
 
-
+-- class Functor f where
+--  fmap :: (a -> b) -> f a -> f b
 
 
 data Entry k1 k2 v = Entry (k1, k2) v  deriving Show
@@ -26,3 +27,11 @@ execLoggers x f g = let
   Log [m1] b = f x
   Log [m2] c = g b
     in Log [m1, m2] c 
+
+bindLog :: Log a -> (a -> Log b) -> Log b
+bindLog (Log xs a) f = let 
+  Log [msg2] b = f a 
+                        in Log (xs ++ [msg2]) b
+  
+execLoggersList :: a -> [a -> Log a] -> Log a
+execLoggersList a xs = foldl (>>=) (return a) xs 
