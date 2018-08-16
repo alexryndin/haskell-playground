@@ -1,3 +1,5 @@
+import Control.Applicative -- Otherwise you can't do the Applicative instance.
+import Control.Monad (liftM, ap)
 data Tree a = Leaf (Maybe a) | Branch (Tree a) (Maybe a) (Tree a) deriving Show
 
 instance Functor Tree where
@@ -19,6 +21,19 @@ instance Functor (Map k1 k2) where
 
 data Log a = Log [String] a deriving Show
 
+instance Functor Log where
+  fmap f (Log [msg] x) = Log [msg] $ f x
+
+instance Applicative Log where
+  pure = return
+  (<*>) = ap
+
+instance Monad Log where
+  return x = Log [] x
+  (>>=) (Log xs a) f = let 
+    Log msg2 b = f a 
+    in Log (msg2 ++ xs ++ msg2) b
+
 toLogger :: (a -> b) -> String -> (a -> Log b)
 toLogger f msg = \x -> Log [msg] $ f x
 
@@ -33,5 +48,5 @@ bindLog (Log xs a) f = let
   Log [msg2] b = f a 
                         in Log (xs ++ [msg2]) b
   
-execLoggersList :: a -> [a -> Log a] -> Log a
-execLoggersList a xs = foldl (>>=) (return a) xs 
+--execLoggersList :: a -> [a -> Log a] -> Log a
+--execLoggersList a xs = foldl (>>=) (return a) xs 
