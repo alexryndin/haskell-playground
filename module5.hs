@@ -123,3 +123,4 @@ main' = do
     putStr "Name: "
     name <- getLine
     if name /= "" then (putStrLn $ "Hi, " ++ name ++ "!") else main'
+
