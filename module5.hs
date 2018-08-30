@@ -1,6 +1,7 @@
 import Control.Applicative -- Otherwise you can't do the Applicative instance.
 import Control.Monad (liftM, ap)
 import Data.Char
+import Control.Monad.State
 
 data Tree a = Leaf (Maybe a) | Branch (Tree a) (Maybe a) (Tree a) deriving Show
 
@@ -124,3 +125,17 @@ main' = do
     name <- getLine
     if name /= "" then (putStrLn $ "Hi, " ++ name ++ "!") else main'
 
+
+data Tree2 a = Leaf2 a | Fork (Tree2 a) a (Tree2 a) deriving Show
+
+iotest :: State (Int, Int) Int
+iotest = do
+  (a,b) <- get
+  return a
+
+--numberTree :: Tree2 () -> Tree2 Integer
+numberTree s (Leaf2 ()) = Leaf2 s
+numberTree s (Fork (l x r)) = let
+  s1 t1 = numberTree s l
+  s2 t2 = numberTree (s1+2) r
+  in Fork (Tree2 t1) (s1+1) (Tree2 t2)
